@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adivinhe o Pokémon</title>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+    /* ==================== ESTILOS GERAIS ==================== */
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: radial-gradient(circle at center, #3a0ca3, #2a0944, #1a0420 80%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    h1 {
+      color: #ff99cc;
+      text-shadow: 0 0 10px rgba(255, 150, 200, 0.8), 0 0 20px rgba(255, 90, 130, 0.4);
+      letter-spacing: 2px;
+      margin-bottom: 25px;
+      font-size: 18px;
+      text-align: center;
+    }
+
+    /* ==================== CONTAINER DO JOGO ==================== */
+    #jogo {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 30px;
+      border-radius: 25px;
+      box-shadow: 0 0 25px rgba(255, 100, 150, 0.15);
+      text-align: center;
+      width: 90%;
+      max-width: 420px;
+      border: 1px solid rgba(255, 120, 180, 0.2);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    /* ==================== DICAS ==================== */
+    #dicas {
+      margin-bottom: 20px;
+      font-size: 10px;
+      line-height: 1.6;
+    }
+
+    #dicas p {
+      margin: 4px 0;
+    }
+
+    #dicas p strong {
+      color: #ff8fab;
+    }
+
+    /* ==================== IMAGEM DO POKÉMON ==================== */
+    #imagem-pokemon {
+      width: 180px;
+      height: 180px;
+      margin: 15px auto;
+      display: block;
+      border-radius: 20px;
+      background: radial-gradient(circle, #2e1036 0%, #16041a 100%);
+      filter: blur(10px) brightness(1.5) contrast(230%) saturate(170%) grayscale(40%);
+      opacity: 0.85;
+      transition: filter 1s ease, opacity 1s ease, transform 1s ease;
+      box-shadow: 0 0 25px rgba(255, 120, 170, 0.25);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* ==================== INPUT ==================== */
+    #entrada-palpite {
+      padding: 10px;
+      width: 80%;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 9px;
+      text-align: center;
+      background: rgba(255, 180, 200, 0.1);
+      color: #fff;
+      margin-bottom: 12px;
+      transition: 0.3s;
+    }
+
+    #entrada-palpite:focus {
+      box-shadow: 0 0 10px rgba(255, 160, 190, 0.5);
+      background: rgba(255, 180, 200, 0.2);
+    }
+
+    /* ==================== BOTÃO ==================== */
+    #botao-palpite {
+      padding: 12px 20px;
+      background: linear-gradient(90deg, #ff758f, #ffb347, #ffc3a0);
+      border: none;
+      border-radius: 8px;
+      color: #2a002a;
+      cursor: pointer;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 9px;
+      transition: 0.3s;
+      box-shadow: 0 0 15px rgba(255, 150, 150, 0.4);
+    }
+
+    #botao-palpite:hover {
+      transform: scale(1.05);
+      background: linear-gradient(90deg, #ff9a9e, #fecfef, #ffb347);
+      box-shadow: 0 0 20px rgba(255, 180, 200, 0.6);
+    }
+
+    /* ==================== RESULTADO ==================== */
+    #resultado {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+
+    #resultado.certo {
+      color: #ffeb99;
+      text-shadow: 0 0 10px #ffb347;
+    }
+
+    #resultado.errado {
+      color: #ff7b7b;
+      text-shadow: 0 0 10px #ff5555;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>🌸 Quem é esse Pokémon? 🌅</h1>
+
+  <div id="jogo">
+    <div id="dicas"></div>
+    <img id="imagem-pokemon" src="" alt="Imagem do Pokémon">
+
+    <input type="text" id="entrada-palpite" placeholder="Digite o nome...">
+    <br>
+    <button id="botao-palpite">Enviar</button>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    let pokemonAleatorio;
+
+    async function buscarPokemonAleatorio() {
+      const id = Math.floor(Math.random() * 898) + 1;
+      const url = `https://pokeapi.co/api/v2/pokemon/${id}`;
+      const response = await fetch(url);
+      const data = await response.json();
+      return data;
+    }
+
+    function exibirDicas(pokemon) {
+      const dicas = document.getElementById('dicas');
+      const imagemPokemon = document.getElementById('imagem-pokemon');
+
+      dicas.innerHTML = `
+        <p><strong>Tipo:</strong> ${pokemon.types.map(t => t.type.name).join(', ')}</p>
+        <p><strong>Altura:</strong> ${pokemon.height / 10}m</p>
+        <p><strong>Peso:</strong> ${pokemon.weight / 10}kg</p>
+        <p><strong>Habilidades:</strong> ${pokemon.abilities.map(a => a.ability.name).join(', ')}</p>
+      `;
+
+      imagemPokemon.src =
+        pokemon.sprites.other['official-artwork'].front_default ||
+        pokemon.sprites.front_default;
+
+      // Mantém o Pokémon borrado e brilhante
+      imagemPokemon.style.filter =
+        "blur(10px) brightness(1.5) contrast(230%) saturate(170%) grayscale(40%)";
+      imagemPokemon.style.opacity = "0.85";
+      imagemPokemon.style.transform = "scale(1)";
+    }
+
+    function verificarPalpite(palpite, pokemon) {
+      const resultado = document.getElementById('resultado');
+      const imagemPokemon = document.getElementById('imagem-pokemon');
+
+      const palpiteNormalizado = palpite.trim().toLowerCase();
+      const nomePokemonNormalizado = pokemon.name.toLowerCase();
+
+      if (palpiteNormalizado === nomePokemonNormalizado) {
+        resultado.textContent = "✨ Você acertou! ✨";
+        resultado.className = "certo";
+
+        // Revela o Pokémon com brilho suave e tons quentes
+        imagemPokemon.style.filter = "brightness(1.2) contrast(120%) saturate(150%)";
+        imagemPokemon.style.opacity = "1";
+        imagemPokemon.style.transform = "scale(1.05)";
+
+        setTimeout(iniciarNovoJogo, 3500);
+      } else {
+        resultado.textContent = "❌ Tente novamente!";
+        resultado.className = "errado";
+      }
+    }
+
+    async function iniciarNovoJogo() {
+      pokemonAleatorio = await buscarPokemonAleatorio();
+      exibirDicas(pokemonAleatorio);
+      document.getElementById('entrada-palpite').value = "";
+      document.getElementById('resultado').textContent = "";
+    }
+
+    document.getElementById('botao-palpite').addEventListener('click', () => {
+      const palpite = document.getElementById('entrada-palpite').value;
+      verificarPalpite(palpite, pokemonAleatorio);
+    });
+
+    window.onload = iniciarNovoJogo;
+  </script>
+</body>
+</html>
